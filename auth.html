@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark Hosting — Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04050d;--bg2:#07091a;--card:#0d1025;--card2:#111430;
+  --border:rgba(14,165,233,0.12);--border2:rgba(14,165,233,0.25);
+  --purple:#0ea5e9;--purple2:#0284c7;--purple-dim:rgba(14,165,233,0.1);--purple-glow:rgba(14,165,233,0.3);
+  --violet:#38bdf8;--pink:#06b6d4;
+  --green:#10b981;--green-dim:rgba(16,185,129,0.1);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.1);
+  --amber:#f59e0b;
+  --t1:#f1f0ff;--t2:#9490b8;--t3:#4a4870;
+  --font-head:'Orbitron',monospace;
+  --font-body:'Syne',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--t1);font-family:var(--font-body);font-size:15px;display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden}
+::selection{background:var(--purple);color:#fff}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--purple)}
+
+/* BG */
+.page-bg{position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 80% 70% at 50% -10%,rgba(14,165,233,0.1) 0%,transparent 55%),
+             radial-gradient(ellipse 60% 50% at 90% 80%,rgba(236,72,153,0.06) 0%,transparent 50%);
+}
+.page-grid{position:fixed;inset:0;z-index:0;
+  background-image:linear-gradient(rgba(139,92,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,0.04) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)}
+
+/* NAV */
+nav{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;border-bottom:1px solid var(--border);background:rgba(4,5,13,0.8);backdrop-filter:blur(20px)}
+.logo{font-family:var(--font-head);font-size:17px;font-weight:900;letter-spacing:3px;text-decoration:none;color:var(--t1);display:flex;align-items:center;gap:10px}
+.logo-mark{width:32px;height:32px;background:linear-gradient(135deg,#0ea5e9,#06b6d4);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 18px var(--purple-glow)}
+.logo span{color:var(--violet)}
+.back-link{font-size:13px;color:var(--t2);text-decoration:none;font-weight:600;transition:color .2s;display:flex;align-items:center;gap:6px}
+.back-link:hover{color:var(--violet)}
+
+/* MAIN */
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;position:relative;z-index:1}
+
+/* CARD */
+.auth-card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:44px 40px;width:100%;max-width:440px;box-shadow:0 0 80px rgba(14,165,233,0.08)}
+.auth-icon{width:60px;height:60px;background:linear-gradient(135deg,#0ea5e9,#0284c7);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px;box-shadow:0 0 30px rgba(14,165,233,0.28)}
+.auth-title{font-family:var(--font-head);font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:2px;text-align:center;margin-bottom:6px}
+.auth-sub{font-size:13px;color:var(--t2);text-align:center;margin-bottom:30px;line-height:1.6}
+
+/* FORM */
+.form-group{margin-bottom:18px}
+.form-group label{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--t2);letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:7px}
+.form-group input{width:100%;padding:12px 16px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--t1);font-size:14px;font-family:var(--font-body);outline:none;transition:all .2s}
+.form-group input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
+.form-group input::placeholder{color:var(--t3)}
+.form-group input.error{border-color:var(--red)}
+
+/* password toggle */
+.pass-wrap{position:relative}
+.pass-wrap input{padding-right:44px}
+.pass-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--t3);font-size:16px;transition:color .2s;background:none;border:none;padding:0}
+.pass-eye:hover{color:var(--violet)}
+
+/* ALERT BOXES */
+.alert{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-radius:10px;font-size:13px;line-height:1.6;margin-bottom:18px}
+.alert.error{background:var(--red-dim);border:1px solid rgba(239,68,68,0.25);color:#fca5a5}
+.alert.success{background:var(--green-dim);border:1px solid rgba(16,185,129,0.25);color:#6ee7b7}
+.alert.info{background:var(--purple-dim);border:1px solid var(--border2);color:var(--violet)}
+.alert-icon{flex-shrink:0;font-size:15px}
+
+/* BUTTONS */
+.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-body);letter-spacing:.05em;transition:all .25s;box-shadow:0 0 24px rgba(14,165,233,0.25);margin-top:4px}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 6px 36px rgba(14,165,233,0.32)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-submit.loading::after{content:' ...'}
+
+/* DIVIDER */
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--t3);font-size:12px;font-family:var(--font-mono)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* LINKS */
+.auth-links{text-align:center;margin-top:22px;font-size:13px;color:var(--t2)}
+.auth-links a{color:var(--violet);text-decoration:none;font-weight:600;transition:color .2s}
+.auth-links a:hover{color:#c4b5fd}
+
+/* PASSWORD STRENGTH */
+.strength-bar{height:3px;border-radius:2px;background:var(--card2);margin-top:8px;overflow:hidden}
+.strength-fill{height:100%;border-radius:2px;transition:all .3s;width:0}
+.strength-label{font-family:var(--font-mono);font-size:10px;margin-top:4px;color:var(--t3)}
+
+/* STEPS (for reset success) */
+.step-list{list-style:none;margin:0 0 24px}
+.step-list li{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--t2)}
+.step-list li:last-child{border-bottom:none}
+.step-num{width:24px;height:24px;background:linear-gradient(135deg,#0ea5e9,#0284c7);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px}
+
+/* PANEL LINK BOX */
+.panel-box{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.panel-box-text{font-size:12px;color:var(--t2);line-height:1.5}
+.panel-box-text strong{color:var(--t1);display:block;margin-bottom:2px}
+.panel-link{padding:8px 16px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;transition:opacity .2s;flex-shrink:0}
+.panel-link:hover{opacity:.85}
+
+/* VIEWS — only active shown */
+.view{display:none}.view.active{display:block}
+</style>
+</head>
+<body>
+<div class="page-bg"></div>
+<div class="page-grid"></div>
+
+<nav>
+  <a class="logo" href="/"><div class="logo-mark">⛏</div>LUMIX<span>CORE</span></a>
+  <a class="back-link" href="/">← Back to Home</a>
+</nav>
+
+<main>
+  <div class="auth-card">
+
+    <!-- ── LOGIN VIEW ── -->
+    <div class="view" id="view-login">
+      <div class="auth-icon">🔐</div>
+      <div class="auth-title">Welcome Back</div>
+      <p class="auth-sub">Sign in to your Dark Hosting account</p>
+      <div id="login-alert"></div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="pass-wrap">
+          <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+          <button class="pass-eye" onclick="togglePass('login-pass',this)" tabindex="-1">👁</button>
+        </div>
+      </div>
+      <div style="text-align:right;margin:-10px 0 18px">
+        <a href="/forgot-password" onclick="showView('forgot');return false" style="font-size:12px;color:var(--t2);text-decoration:none;font-family:var(--font-mono);transition:color .2s" onmouseover="this.style.color='var(--violet)'" onmouseout="this.style.color='var(--t2)'">Forgot password?</a>
+      </div>
+      <button class="btn-submit" id="login-btn" onclick="doLogin()">SIGN IN</button>
+      <div class="auth-links">Don't have an account? <a href="/register" onclick="showView('register');return false">Create one</a></div>
+    </div>
+
+    <!-- ── REGISTER VIEW ── -->
+    <div class="view" id="view-register">
+      <div class="auth-icon">🌱</div>
+      <div class="auth-title">Create Account</div>
+      <p class="auth-sub">Join Dark Hosting — free to start!</p>
+      <div id="reg-alert"></div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="pass-wrap">
+          <input type="password" id="reg-pass" placeholder="Min. 6 characters" autocomplete="new-password" oninput="checkStrength(this.value)">
+          <button class="pass-eye" onclick="togglePass('reg-pass',this)" tabindex="-1">👁</button>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+        <div class="strength-label" id="strength-label"></div>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <div class="pass-wrap">
+          <input type="password" id="reg-pass2" placeholder="••••••••" autocomplete="new-password">
+          <button class="pass-eye" onclick="togglePass('reg-pass2',this)" tabindex="-1">👁</button>
+        </div>
+      </div>
+      <button class="btn-submit" id="reg-btn" onclick="doRegister()">CREATE ACCOUNT</button>
+      <div class="auth-links">Already have an account? <a href="/login" onclick="showView('login');return false">Sign in</a></div>
+    </div>
+
+    <!-- ── FORGOT PASSWORD VIEW ── -->
+    <div class="view" id="view-forgot">
+      <div class="auth-icon">🔑</div>
+      <div class="auth-title">Forgot Password</div>
+      <p class="auth-sub">Enter the email address linked to your account. We'll send you a link to reset your password.</p>
+      <div id="forgot-alert"></div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="forgot-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <button class="btn-submit" id="forgot-btn" onclick="doForgot()">SEND RESET EMAIL</button>
+      <div class="auth-links"><a href="/login" onclick="showView('login');return false">← Back to Sign In</a></div>
+    </div>
+
+    <!-- ── RESET PASSWORD VIEW ── -->
+    <div class="view" id="view-reset">
+      <div class="auth-icon">🛡</div>
+      <div class="auth-title">Reset Password</div>
+      <p class="auth-sub" id="reset-sub">Set a new password for your account.</p>
+      <div id="reset-alert"></div>
+      <div class="form-group" id="reset-fields">
+        <label>New Password</label>
+        <div class="pass-wrap">
+          <input type="password" id="reset-pass" placeholder="Min. 6 characters" autocomplete="new-password" oninput="checkStrength(this.value,'reset')">
+          <button class="pass-eye" onclick="togglePass('reset-pass',this)" tabindex="-1">👁</button>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strength-fill-reset"></div></div>
+        <div class="strength-label" id="strength-label-reset"></div>
+        <div style="margin-top:16px">
+          <label>Confirm New Password</label>
+          <div class="pass-wrap" style="margin-top:7px">
+            <input type="password" id="reset-pass2" placeholder="••••••••" autocomplete="new-password">
+            <button class="pass-eye" onclick="togglePass('reset-pass2',this)" tabindex="-1">👁</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn-submit" id="reset-btn" onclick="doReset()">SET NEW PASSWORD</button>
+    </div>
+
+    <!-- ── SUCCESS VIEWS ── -->
+    <!-- Forgot sent -->
+    <div class="view" id="view-forgot-sent">
+      <div class="auth-icon">📧</div>
+      <div class="auth-title">Email Sent!</div>
+      <p class="auth-sub">We've sent a password reset link to:</p>
+      <div style="background:var(--purple-dim);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;text-align:center;margin-bottom:24px">
+        <span style="font-family:var(--font-mono);font-size:14px;color:var(--violet)" id="sent-email-display"></span>
+      </div>
+      <div class="alert info">
+        <span class="alert-icon">ℹ️</span>
+        <div>Check your inbox and spam folder. The link expires in <strong>15 minutes</strong>.</div>
+      </div>
+      <div class="auth-links" style="margin-top:10px">
+        <a href="/forgot-password" onclick="showView('forgot');return false">Didn't get it? Try again</a>
+        &nbsp;·&nbsp;
+        <a href="/login" onclick="showView('login');return false">Back to Sign In</a>
+      </div>
+    </div>
+
+    <!-- Reset success -->
+    <div class="view" id="view-reset-success">
+      <div class="auth-icon">✅</div>
+      <div class="auth-title">Password Reset!</div>
+      <p class="auth-sub">Your password has been changed successfully. A confirmation email has been sent to you.</p>
+      <div class="alert success">
+        <span class="alert-icon">✓</span>
+        <div>You can now sign in with your new password.</div>
+      </div>
+
+      <!-- Panel info -->
+      <div class="panel-box">
+        <div class="panel-box-text">
+          <strong>Hosting Panel</strong>
+          Sign in to manage your server
+        </div>
+        <a href="https://panel.jtgggg.qzz.io/" target="_blank" class="panel-link">Open Panel →</a>
+      </div>
+
+      <button class="btn-submit" onclick="showView('login')">SIGN IN NOW</button>
+      <div class="auth-links" style="margin-top:16px">
+        Need help? <a href="https://discord.gg/J7RGqWSU46" target="_blank">Join our Discord</a>
+      </div>
+    </div>
+
+    <!-- Register success -->
+    <div class="view" id="view-reg-success">
+      <div class="auth-icon">🎉</div>
+      <div class="auth-title">Account Created!</div>
+      <p class="auth-sub">Welcome to Dark Hosting! Here's how to get your server:</p>
+
+      <ul class="step-list">
+        <li><div class="step-num">1</div><div>Join our Discord and create a ticket to choose your plan.</div></li>
+        <li><div class="step-num">2</div><div>Sign in to the hosting panel at <strong style="color:var(--violet)">panel.jtgggg.qzz.io</strong></div></li>
+        <li><div class="step-num">3</div><div>Send us your account email in the ticket — server will be set up in minutes!</div></li>
+      </ul>
+
+      <div class="panel-box">
+        <div class="panel-box-text">
+          <strong>Hosting Panel</strong>
+          Go here to access your server
+        </div>
+        <a href="https://panel.jtgggg.qzz.io/" target="_blank" class="panel-link">Open Panel →</a>
+      </div>
+
+      <a href="https://discord.gg/J7RGqWSU46" target="_blank"
+        style="display:block;width:100%;padding:13px;background:#5865f2;color:#fff;border-radius:12px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;transition:opacity .2s;margin-bottom:14px"
+        onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">🎮 Join Discord & Create Ticket</a>
+      <div class="auth-links"><a href="/login" onclick="showView('login');return false">Sign In to your account</a></div>
+    </div>
+
+  </div><!-- /auth-card -->
+</main>
+
+<script>
+// ── ROUTING ───────────────────────────────────────────────────────────────
+const path = window.location.pathname;
+let resetToken = null;
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  window.history.pushState({}, '', '/' + (name === 'login' ? 'login' : name === 'register' ? 'register' : name === 'forgot' ? 'forgot-password' : 'login'));
+}
+
+// Auto-route based on URL
+if (path === '/register') showView('register');
+else if (path === '/forgot-password') showView('forgot');
+else if (path === '/reset-password') {
+  const params = new URLSearchParams(window.location.search);
+  resetToken = params.get('token');
+  if (resetToken) {
+    // Verify token first
+    fetch('/api/verify-reset-token?token=' + resetToken)
+      .then(r => r.json())
+      .then(d => {
+        if (d.ok) {
+          document.getElementById('reset-sub').textContent = 'Set a new password for ' + d.email;
+          showView('reset');
+        } else {
+          showView('forgot');
+          setAlert('forgot', 'error', 'This reset link is invalid or has expired. Please request a new one.');
+        }
+      });
+  } else showView('login');
+} else showView('login');
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function setAlert(view, type, msg) {
+  const el = document.getElementById(view + '-alert');
+  if (!el) return;
+  el.innerHTML = msg ? `<div class="alert ${type}"><span class="alert-icon">${type==='error'?'✗':type==='success'?'✓':'ℹ️'}</span><div>${msg}</div></div>` : '';
+}
+function togglePass(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+function checkStrength(val, prefix) {
+  const fill  = document.getElementById('strength-fill' + (prefix ? '-' + prefix : ''));
+  const label = document.getElementById('strength-label' + (prefix ? '-' + prefix : ''));
+  if (!fill) return;
+  let score = 0;
+  if (val.length >= 6) score++;
+  if (val.length >= 10) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  const levels = [
+    {w:'0%', c:'transparent', t:''},
+    {w:'25%', c:'#ef4444', t:'Weak'},
+    {w:'50%', c:'#f59e0b', t:'Fair'},
+    {w:'75%', c:'#3b82f6', t:'Good'},
+    {w:'100%', c:'#10b981', t:'Strong'},
+  ];
+  const l = levels[Math.min(score, 4)];
+  fill.style.width = l.w; fill.style.background = l.c;
+  label.textContent = l.t; label.style.color = l.c;
+}
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = loading;
+  btn.classList.toggle('loading', loading);
+}
+async function post(url, body) {
+  const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  return r.json();
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  setAlert('login', '', '');
+  if (!email || !pass) return setAlert('login', 'error', 'Please enter your email and password.');
+  setLoading('login-btn', true);
+  const d = await post('/api/login', { email, password: pass });
+  setLoading('login-btn', false);
+  if (d.ok) { window.location.href = '/'; }
+  else setAlert('login', 'error', d.message);
+}
+
+// ── REGISTER ──────────────────────────────────────────────────────────────
+async function doRegister() {
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  setAlert('reg', '', '');
+  if (!email || !pass) return setAlert('reg', 'error', 'Please fill in all fields.');
+  if (pass !== pass2) return setAlert('reg', 'error', 'Passwords do not match.');
+  if (pass.length < 6) return setAlert('reg', 'error', 'Password must be at least 6 characters.');
+  setLoading('reg-btn', true);
+  const d = await post('/api/register', { email, password: pass });
+  setLoading('reg-btn', false);
+  if (d.ok) showView('reg-success');
+  else setAlert('reg', 'error', d.message);
+}
+
+// ── FORGOT PASSWORD ───────────────────────────────────────────────────────
+async function doForgot() {
+  const email = document.getElementById('forgot-email').value.trim();
+  setAlert('forgot', '', '');
+  if (!email) return setAlert('forgot', 'error', 'Please enter your email address.');
+  setLoading('forgot-btn', true);
+  const d = await post('/api/forgot-password', { email });
+  setLoading('forgot-btn', false);
+  if (d.ok) {
+    document.getElementById('sent-email-display').textContent = email;
+    showView('forgot-sent');
+  } else setAlert('forgot', 'error', d.message);
+}
+
+// ── RESET PASSWORD ────────────────────────────────────────────────────────
+async function doReset() {
+  const pass  = document.getElementById('reset-pass').value;
+  const pass2 = document.getElementById('reset-pass2').value;
+  setAlert('reset', '', '');
+  if (!pass || !pass2) return setAlert('reset', 'error', 'Please fill in both password fields.');
+  if (pass !== pass2) return setAlert('reset', 'error', 'Passwords do not match.');
+  if (pass.length < 6) return setAlert('reset', 'error', 'Password must be at least 6 characters.');
+  setLoading('reset-btn', true);
+  const d = await post('/api/reset-password', { token: resetToken, password: pass, confirmPassword: pass2 });
+  setLoading('reset-btn', false);
+  if (d.ok) showView('reset-success');
+  else setAlert('reset', 'error', d.message);
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const active = document.querySelector('.view.active')?.id;
+  if (active === 'view-login') doLogin();
+  else if (active === 'view-register') doRegister();
+  else if (active === 'view-forgot') doForgot();
+  else if (active === 'view-reset') doReset();
+});
+</script>
+</body>
+</html>

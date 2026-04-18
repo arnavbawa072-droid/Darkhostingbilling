@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark Hosting — Premium Minecraft Hosting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ── CONFIG — CHANGE THESE ───────────────────────────────────────────────
+   Admin credentials are set in the JS below (search for ADMIN_CONFIG)
+   ──────────────────────────────────────────────────────────────────── */
+:root{
+  --bg:#04050d;--bg2:#07091a;--card:#0d1025;--card2:#111430;--card3:#151840;
+  --border:rgba(99,102,241,0.12);--border2:rgba(99,102,241,0.28);
+  --p:#6366f1;--p2:#4f46e5;--p-dim:rgba(99,102,241,0.1);--p-glow:rgba(99,102,241,0.3);
+  --violet:#a5b4fc;--pink:#818cf8;
+  --green:#10b981;--green-dim:rgba(16,185,129,0.1);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,0.1);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.1);
+  --t1:#f1f0ff;--t2:#9490b8;--t3:#4a4870;
+  --fh:'Orbitron',monospace;--fb:'Syne',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:15px;line-height:1.6;overflow-x:hidden}
+::selection{background:var(--p);color:#fff}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--p);border-radius:2px}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:68px;background:rgba(4,5,13,0.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--fh);font-size:18px;font-weight:900;letter-spacing:3px;text-decoration:none;color:var(--t1);display:flex;align-items:center;gap:10px}
+.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--p),var(--p2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 20px var(--p-glow)}
+.logo span{color:var(--violet)}
+.nav-links{display:flex;gap:36px}
+.nav-links a{font-size:13px;font-weight:600;color:var(--t2);text-decoration:none;letter-spacing:.08em;transition:color .2s}
+.nav-links a:hover{color:var(--violet)}
+.nav-right{display:flex;gap:10px;align-items:center}
+.status-tag{display:flex;align-items:center;gap:6px;font-family:var(--fm);font-size:10px;color:var(--green);background:var(--green-dim);border:1px solid rgba(16,185,129,0.2);padding:5px 12px;border-radius:20px}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:sdot 1.8s ease-in-out infinite}
+@keyframes sdot{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,.4)}50%{opacity:.5;box-shadow:0 0 0 4px rgba(16,185,129,0)}}
+.btn-n{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fb);transition:all .2s;letter-spacing:.04em;border:none;display:inline-flex;align-items:center;gap:6px}
+.btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--border2)}
+.btn-ghost:hover{border-color:var(--p);color:var(--violet)}
+.btn-solid{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;box-shadow:0 0 20px var(--p-glow)}
+.btn-solid:hover{transform:translateY(-2px);box-shadow:0 4px 28px var(--p-glow)}
+#nav-auth{display:flex;gap:10px}
+#nav-user{display:none;align-items:center;gap:10px}
+.user-chip{display:flex;align-items:center;gap:8px;padding:6px 14px;background:var(--p-dim);border:1px solid var(--border2);border-radius:20px;font-size:12px;color:var(--violet);font-family:var(--fm)}
+.user-chip .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+#btn-admin{display:none;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;font-weight:800;border:none}
+
+/* TICKER */
+.ticker-strip{margin-top:68px;background:linear-gradient(90deg,var(--p2),var(--p),var(--p2));padding:9px 0;overflow:hidden}
+.ticker-inner{display:flex;animation:tick 25s linear infinite;white-space:nowrap}
+.ticker-chunk{display:flex;gap:50px;padding-right:50px}
+.ticker-chunk span{font-family:var(--fm);font-size:11px;font-weight:600;color:#fff;letter-spacing:.12em;text-transform:uppercase}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 20px 60px;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 100% 80% at 50% -20%,rgba(99,102,241,0.13) 0%,transparent 55%),radial-gradient(ellipse 60% 50% at 10% 80%,rgba(129,140,248,0.06) 0%,transparent 50%)}
+.hero-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(rgba(99,102,241,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.05) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 90% 90% at 50% 50%,black 0%,transparent 100%)}
+.hero-content{position:relative;z-index:1;max-width:860px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--fm);font-size:11px;font-weight:600;color:var(--violet);letter-spacing:.2em;background:var(--p-dim);border:1px solid var(--border2);padding:7px 18px;border-radius:20px;margin-bottom:32px;text-transform:uppercase}
+.hero h1{font-family:var(--fh);font-size:clamp(40px,8vw,88px);font-weight:900;letter-spacing:3px;line-height:1;text-transform:uppercase;margin-bottom:8px}
+.hero h1 .hl{background:linear-gradient(90deg,var(--violet),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block}
+.hero-sub{font-size:16px;color:var(--t2);max-width:500px;margin:22px auto 44px;line-height:1.8}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:64px}
+.btn-big{padding:15px 36px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;font-family:var(--fb);transition:all .25s;letter-spacing:.05em;border:none}
+.btn-big.purple{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;box-shadow:0 0 30px var(--p-glow)}
+.btn-big.purple:hover{transform:translateY(-3px);box-shadow:0 6px 40px var(--p-glow)}
+.btn-big.outline{background:transparent;color:var(--t1);border:1px solid var(--border2)}
+.btn-big.outline:hover{border-color:var(--violet);color:var(--violet);transform:translateY(-3px)}
+.hero-stats{display:flex;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.hstat{flex:1;padding:22px 20px;text-align:center;border-right:1px solid var(--border)}
+.hstat:last-child{border-right:none}
+.hstat-num{font-family:var(--fh);font-size:26px;font-weight:900;background:linear-gradient(90deg,var(--violet),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block}
+.hstat-label{font-family:var(--fm);font-size:9px;color:var(--t3);letter-spacing:.12em;text-transform:uppercase;margin-top:4px}
+
+/* SECTIONS */
+section{padding:100px 20px;position:relative;z-index:1}
+.wrap{max-width:1200px;margin:0 auto}
+.sec-tag{font-family:var(--fm);font-size:11px;font-weight:600;color:var(--violet);letter-spacing:.2em;text-transform:uppercase;display:inline-block;margin-bottom:14px}
+.sec-title{font-family:var(--fh);font-size:clamp(28px,5vw,50px);font-weight:900;text-transform:uppercase;letter-spacing:2px;line-height:1.1;margin-bottom:14px}
+.sec-title .hl{background:linear-gradient(90deg,var(--violet),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sec-sub{font-size:14px;color:var(--t2);max-width:480px;line-height:1.8}
+
+/* PLAN TABS */
+#plans{background:var(--bg2)}
+.plan-tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:5px;width:fit-content;margin:40px auto 0}
+.ptab{padding:10px 30px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fb);letter-spacing:.06em;color:var(--t2);background:none;border:none;transition:all .2s}
+.ptab.active{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;box-shadow:0 0 20px var(--p-glow)}
+.ptab:hover:not(.active){color:var(--t1);background:var(--card2)}
+.plan-content{display:none;margin-top:40px}.plan-content.active{display:block}
+.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:26px 20px;position:relative;display:flex;flex-direction:column;transition:all .3s}
+.pcard:hover{border-color:var(--border2);transform:translateY(-5px);box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 30px rgba(99,102,241,.08)}
+.pcard.hot{border-color:var(--p);background:linear-gradient(145deg,var(--card) 0%,rgba(99,102,241,.06) 100%);box-shadow:0 0 40px rgba(99,102,241,.1)}
+.pcard.top{border-color:var(--pink);background:linear-gradient(145deg,var(--card) 0%,rgba(129,140,248,.06) 100%)}
+.pbadge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-family:var(--fm);font-size:10px;font-weight:700;padding:4px 14px;border-radius:20px;letter-spacing:.1em;white-space:nowrap}
+.pbadge.purple{background:linear-gradient(90deg,var(--p),var(--p2));color:#fff}
+.pbadge.pink{background:linear-gradient(90deg,var(--pink),#6366f1);color:#fff}
+.pbadge.amber{background:var(--amber);color:#000}
+.picon{font-size:24px;margin-bottom:10px}
+.pinvite{font-family:var(--fm);font-size:10px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.pname{font-family:var(--fh);font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.pprice{font-family:var(--fh);font-size:32px;font-weight:900;background:linear-gradient(90deg,var(--violet),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:10px 0}
+.pprice.rupee{-webkit-text-fill-color:var(--t1);background:none;color:var(--t1)}
+.pprice.rupee span{font-size:13px;color:var(--t2);font-family:var(--fb)}
+.pprice sup{font-size:14px;font-family:var(--fb);-webkit-text-fill-color:var(--t2);color:var(--t2)}
+.pdesc{font-size:12px;color:var(--t2);margin-bottom:16px;line-height:1.6}
+.pfeats{list-style:none;flex:1;margin-bottom:20px}
+.pfeats li{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);padding:4px 0;border-bottom:1px solid var(--border)}
+.pfeats li:last-child{border-bottom:none}
+.pfeats li.on{color:var(--t1)}
+.ck{color:var(--p);font-size:11px;flex-shrink:0}.xk{color:var(--t3);font-size:11px;flex-shrink:0}
+.free-tag{display:inline-block;background:var(--green-dim);border:1px solid rgba(16,185,129,.3);color:var(--green);font-family:var(--fm);font-size:10px;font-weight:700;padding:3px 10px;border-radius:6px;letter-spacing:.08em;margin-bottom:10px}
+.pbtn{width:100%;padding:11px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fb);letter-spacing:.05em;transition:all .2s;border:none;text-align:center;text-decoration:none;display:block}
+.pbtn.outline{background:var(--p-dim);color:var(--violet);border:1px solid var(--border2)}
+.pbtn.outline:hover{background:var(--p);color:#fff}
+.pbtn.solid{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;box-shadow:0 0 18px var(--p-glow)}
+.pbtn.solid:hover{transform:translateY(-2px)}
+.pbtn.ticket{background:linear-gradient(135deg,var(--amber),#d97706);color:#000;font-weight:800}
+.pbtn.ticket:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(245,158,11,.4)}
+.pbtn.top-btn{background:linear-gradient(135deg,var(--pink),#6366f1);color:#fff}
+.pbtn.top-btn:hover{transform:translateY(-2px)}
+
+/* FEATURES */
+#why{background:var(--bg)}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:56px}
+.fcard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;transition:all .3s;position:relative;overflow:hidden}
+.fcard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--p),var(--pink));transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.fcard:hover::after{transform:scaleX(1)}
+.fcard:hover{border-color:var(--border2);transform:translateY(-3px)}
+.ficon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px}
+.fi-p{background:var(--p-dim)}.fi-g{background:var(--green-dim)}.fi-a{background:var(--amber-dim)}
+.fname{font-family:var(--fh);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.fdesc{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:12px}
+.fstat{font-family:var(--fm);font-size:20px;font-weight:700;background:linear-gradient(90deg,var(--violet),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* REVIEWS */
+#reviews{background:var(--bg2)}
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:56px}
+.rcard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;transition:border-color .3s}
+.rcard:hover{border-color:var(--border2)}
+.rstars{font-size:13px;letter-spacing:3px;margin-bottom:12px;color:var(--amber)}
+.rtext{font-size:13px;color:var(--t2);line-height:1.8;margin-bottom:18px;font-style:italic}
+.rauthor{display:flex;align-items:center;gap:10px}
+.ravatar{width:34px;height:34px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:16px}
+.rname{font-size:13px;font-weight:700;color:var(--t1)}
+.rrole{font-size:10px;color:var(--t3);font-family:var(--fm);letter-spacing:.06em}
+
+/* DISCORD */
+#contact{background:var(--bg)}
+.disc-card{max-width:660px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:22px;padding:54px;text-align:center;position:relative;overflow:hidden}
+.disc-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 70% at 50% 0%,rgba(99,102,241,.08) 0%,transparent 65%)}
+.disc-card>*{position:relative;z-index:1}
+.disc-card h3{font-family:var(--fh);font-size:30px;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin:20px 0 10px}
+.disc-card p{color:var(--t2);font-size:14px;margin-bottom:30px}
+.btn-disc{display:inline-flex;align-items:center;gap:10px;padding:14px 34px;border-radius:12px;background:#5865f2;color:#fff;font-size:15px;font-weight:700;text-decoration:none;font-family:var(--fb);transition:all .2s}
+.btn-disc:hover{background:#4752c4;transform:translateY(-2px);box-shadow:0 8px 30px rgba(88,101,242,.4)}
+
+/* FOOTER */
+footer{background:var(--bg);border-top:1px solid var(--border);padding:60px 20px 28px}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px}
+.fbrand p{font-size:13px;color:var(--t2);margin-top:14px;line-height:1.8;max-width:260px}
+.fcol h4{font-family:var(--fm);font-size:10px;font-weight:700;color:var(--violet);letter-spacing:.18em;text-transform:uppercase;margin-bottom:16px}
+.fcol a{display:block;font-size:13px;color:var(--t2);text-decoration:none;margin-bottom:10px;transition:color .2s}
+.fcol a:hover{color:var(--t1)}
+.footer-bottom{max-width:1200px;margin:0 auto;border-top:1px solid var(--border);padding-top:22px;display:flex;align-items:center;justify-content:space-between;font-family:var(--fm);font-size:11px;color:var(--t3)}
+.fsys{color:var(--green)}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(4,5,13,0.96);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.mcard{background:var(--card);border:1px solid var(--border2);border-radius:22px;padding:44px 40px;width:100%;max-width:440px;position:relative;box-shadow:0 0 80px rgba(99,102,241,0.12)}
+.mcard.wide{max-width:500px}
+.mclose{position:absolute;top:16px;right:18px;background:var(--p-dim);border:1px solid var(--border2);color:var(--violet);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:var(--fb);transition:all .2s}
+.mclose:hover{background:var(--p);color:#fff}
+.micon{width:60px;height:60px;background:linear-gradient(135deg,var(--p),var(--p2));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px;box-shadow:0 0 30px var(--p-glow)}
+.micon.green{background:linear-gradient(135deg,var(--green),#059669)}
+.mtitle{font-family:var(--fh);font-size:19px;font-weight:900;text-transform:uppercase;letter-spacing:2px;text-align:center;margin-bottom:6px}
+.msub{font-size:13px;color:var(--t2);text-align:center;margin-bottom:26px;line-height:1.6}
+/* form */
+.fg{margin-bottom:15px}
+.fg label{font-family:var(--fm);font-size:10px;font-weight:600;color:var(--t2);letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:7px}
+.fg input{width:100%;padding:12px 16px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--t1);font-size:14px;font-family:var(--fb);outline:none;transition:all .2s}
+.fg input:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+.fg input::placeholder{color:var(--t3)}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:44px}
+.pw-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--t3);font-size:15px;transition:color .2s;padding:0}
+.pw-eye:hover{color:var(--violet)}
+/* alerts */
+.alert{display:none;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:10px;font-size:13px;line-height:1.5;margin-bottom:14px}
+.alert.err{background:var(--red-dim);border:1px solid rgba(239,68,68,.25);color:#fca5a5;display:flex}
+.alert.suc{background:var(--green-dim);border:1px solid rgba(16,185,129,.25);color:#6ee7b7;display:flex}
+.alert.inf{background:var(--p-dim);border:1px solid var(--border2);color:var(--violet);display:flex}
+.alert.hide{display:none!important}
+/* btn */
+.mbtn{width:100%;padding:13px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--fb);letter-spacing:.05em;transition:all .25s;box-shadow:0 0 20px var(--p-glow);margin-top:4px}
+.mbtn:hover{transform:translateY(-2px);box-shadow:0 6px 32px var(--p-glow)}
+.mbtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.mlinks{text-align:center;margin-top:18px;font-size:13px;color:var(--t2)}
+.mlinks a{color:var(--violet);text-decoration:none;font-weight:600;cursor:pointer}
+.mlinks a:hover{color:#c7d2fe}
+/* strength */
+.sbar{height:3px;background:var(--card2);border-radius:2px;margin-top:7px;overflow:hidden}
+.sbar-fill{height:100%;border-radius:2px;transition:all .3s;width:0}
+.sbar-lbl{font-family:var(--fm);font-size:10px;margin-top:4px;color:var(--t3)}
+/* step boxes */
+.pstep{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:15px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start}
+.pstep-n{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--p),var(--p2));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:12px;font-weight:900;color:#fff;flex-shrink:0;margin-top:1px}
+.pstep-n.g{background:linear-gradient(135deg,var(--green),#059669)}
+.pstep-t{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:3px}
+.pstep-d{font-size:12px;color:var(--t2);line-height:1.5}
+.slink{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:5px 12px;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none;transition:opacity .2s}
+.slink:hover{opacity:.85}
+.sl-d{background:#5865f2;color:#fff}
+.sl-p{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff}
+/* views */
+.mview{display:none}.mview.active{display:block}
+
+/* ── ADMIN PANEL ── */
+.admin-overlay{display:none;position:fixed;inset:0;z-index:9500;background:var(--bg);overflow-y:auto;padding:20px}
+.admin-overlay.open{display:block}
+.admin-wrap{max-width:1100px;margin:0 auto}
+.admin-topbar{display:flex;align-items:center;gap:16px;margin-bottom:26px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.admin-title{font-family:var(--fh);font-size:17px;font-weight:900;letter-spacing:2px;color:var(--violet)}
+.astat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.astat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.astat-lbl{font-family:var(--fm);font-size:10px;color:var(--t2);letter-spacing:.1em;margin-bottom:8px}
+.astat-val{font-family:var(--fh);font-size:24px;font-weight:900;background:linear-gradient(90deg,var(--violet),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.acard{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px}
+.acard-head{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.acard-title{font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:1px;color:var(--t1)}
+.abtn{padding:6px 16px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fb)}
+.abtn.green{background:linear-gradient(135deg,var(--green),#059669)}
+.trow{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--border);font-size:12px;transition:background .15s}
+.trow:last-child{border-bottom:none}
+.trow:hover{background:var(--card2)}
+.tavatar{width:30px;height:30px;border-radius:8px;background:var(--p-dim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.tname{font-weight:700;color:var(--t1);flex:1;min-width:0}
+.tname small{display:block;font-size:10px;color:var(--t3);font-family:var(--fm);font-weight:400;margin-top:1px}
+.tplan{font-family:var(--fm);font-size:10px;color:var(--t2);background:var(--card2);padding:2px 8px;border-radius:4px;white-space:nowrap}
+.tprice{font-family:var(--fm);font-weight:700;color:var(--violet);min-width:55px;text-align:right;white-space:nowrap}
+.tstatus{font-family:var(--fm);font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.ts-active{background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.ts-pending{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,.2)}
+.ts-free{background:var(--p-dim);color:var(--violet);border:1px solid var(--border2)}
+.tact{display:flex;gap:6px}
+.act-btn{padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:none;color:var(--t2);font-family:var(--fb);transition:all .2s}
+.act-btn:hover{border-color:var(--p);color:var(--violet)}
+.act-btn.approve{border-color:rgba(16,185,129,.3);color:var(--green)}
+.act-btn.approve:hover{background:var(--green-dim)}
+.act-btn.del{border-color:rgba(239,68,68,.25);color:#fca5a5}
+.act-btn.del:hover{background:var(--red-dim)}
+/* admin form inputs */
+.ainput{width:100%;padding:10px 14px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--t1);font-size:13px;font-family:var(--fb);outline:none;margin-bottom:12px}
+.ainput:focus{border-color:var(--p)}
+/* rev bars */
+.rev-row{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--border);font-size:12px}
+.rev-row:last-child{border-bottom:none}
+.rev-m{font-family:var(--fm);font-size:10px;color:var(--t2);min-width:70px}
+.rev-bw{flex:1;height:5px;background:var(--card2);border-radius:3px;overflow:hidden}
+.rev-b{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--p),var(--pink))}
+.rev-amt{font-family:var(--fm);font-weight:700;color:var(--violet);min-width:72px;text-align:right;font-size:12px}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;z-index:99999;background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:13px 20px;font-size:13px;font-weight:600;color:var(--t1);box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.g{border-color:rgba(16,185,129,.3);color:var(--green)}
+#toast.r{border-color:rgba(239,68,68,.3);color:#fca5a5}
+
+/* FADE UP */
+.fu{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+.fu.vis{opacity:1;transform:translateY(0)}
+.fd1{transition-delay:.1s}.fd2{transition-delay:.2s}.fd3{transition-delay:.3s}.fd4{transition-delay:.4s}.fd5{transition-delay:.5s}
+
+@media(max-width:768px){
+  nav{padding:0 20px}.nav-links{display:none}
+  .hero-stats{flex-direction:column}.hstat{border-right:none;border-bottom:1px solid var(--border)}
+  .hstat:last-child{border-bottom:none}
+  .footer-inner{grid-template-columns:1fr 1fr}
+  .mcard{padding:32px 22px}
+  .astat-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#"><div class="logo-mark">⛏</div>DARK<span>HOSTING</span></a>
+  <div class="nav-links">
+    <a href="#plans">Plans</a><a href="#why">Features</a><a href="#reviews">Reviews</a><a href="#contact">Discord</a>
+  </div>
+  <div class="nav-right">
+    <div class="status-tag"><span class="sdot"></span>ONLINE</div>
+    <div id="nav-auth">
+      <button class="btn-n btn-solid" onclick="openO('auth-o','v-login')">Login</button>
+    </div>
+    <div id="nav-user">
+      <div class="user-chip"><span class="dot"></span><span id="nav-email"></span></div>
+      <button id="btn-admin" class="btn-n" onclick="openAdmin()" style="padding:8px 18px;font-size:13px;font-weight:800;border-radius:8px;cursor:pointer">⚙ Admin</button>
+      <button class="btn-n btn-ghost" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker-strip">
+  <div class="ticker-inner">
+    <div class="ticker-chunk"><span>⚡ Ultra Fast NVMe SSDs</span><span>🛡 DDoS Protection</span><span>🚀 Instant Setup</span><span>🌍 India Nodes</span><span>🌑 Dark Prices</span><span>🎮 Pterodactyl Panel</span><span>24/7 Support</span><span>99.9% Uptime</span></div>
+    <div class="ticker-chunk" aria-hidden="true"><span>⚡ Ultra Fast NVMe SSDs</span><span>🛡 DDoS Protection</span><span>🚀 Instant Setup</span><span>🌍 India Nodes</span><span>🌑 Dark Prices</span><span>🎮 Pterodactyl Panel</span><span>24/7 Support</span><span>99.9% Uptime</span></div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div><div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow fu">⛏ &nbsp;PREMIUM MINECRAFT HOSTING — INDIA</div>
+    <h1 class="fu fd1">DARK<span class="hl">HOSTING</span></h1>
+    <p class="hero-sub fu fd2">Ultra-low latency. Instant deployment. NVMe SSDs. DDoS protection on every server. Best prices in India starting at just ₹49/month.</p>
+    <div class="hero-btns fu fd3">
+      <a href="#plans" class="btn-big purple">VIEW PLANS ↓</a>
+      <a href="#plans" class="btn-big outline">FREE SERVER →</a>
+    </div>
+    <div class="hero-stats fu fd4">
+      <div class="hstat"><span class="hstat-num">500+</span><span class="hstat-label">Servers Hosted</span></div>
+      <div class="hstat"><span class="hstat-num">99.9%</span><span class="hstat-label">Uptime SLA</span></div>
+      <div class="hstat"><span class="hstat-num">₹49</span><span class="hstat-label">Starting Price</span></div>
+      <div class="hstat"><span class="hstat-num">24/7</span><span class="hstat-label">Support</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANS -->
+<section id="plans">
+  <div class="wrap">
+    <div class="sec-tag">⚡ PRICING PLANS</div>
+    <h2 class="sec-title">CHOOSE YOUR <span class="hl">SERVER</span></h2>
+    <p class="sec-sub">From free invite-based servers to high-performance paid plans.</p>
+    <div class="plan-tabs">
+      <button class="ptab active" onclick="switchTab('free',this)">🌱 FREE PLANS</button>
+      <button class="ptab" onclick="switchTab('paid',this)">💳 PAID PLANS</button>
+    </div>
+
+    <div class="plan-content active" id="tab-free">
+      <div class="plans-grid">
+        <div class="pcard fu"><div class="free-tag">FREE</div><div class="picon">🌱</div><div class="pinvite">2 INVITES</div><div class="pname">STARTER</div><div class="pprice">FREE</div><p class="pdesc">Invite 2 friends to unlock your first free server.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>2 GB RAM</li><li class="on"><span class="ck">▸</span>100% CPU</li><li class="on"><span class="ck">▸</span>5 GB Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>Basic DDoS Shield</li><li><span class="xk">✗</span>Custom Domain</li></ul><button onclick="openO('free-o')" class="pbtn outline">GET STARTED</button></div>
+        <div class="pcard fu fd1"><div class="free-tag">FREE</div><div class="picon">🌿</div><div class="pinvite">4 INVITES</div><div class="pname">BASIC</div><div class="pprice">FREE</div><p class="pdesc">4 invites gets you more power for your community.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>4 GB RAM</li><li class="on"><span class="ck">▸</span>150% CPU</li><li class="on"><span class="ck">▸</span>10 GB Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>Basic DDoS Shield</li><li class="on"><span class="ck">▸</span>Subdomain</li></ul><button onclick="openO('free-o')" class="pbtn outline">GET STARTED</button></div>
+        <div class="pcard hot fu fd2"><div class="pbadge purple">MOST POPULAR</div><div class="free-tag">FREE</div><div class="picon">🌳</div><div class="pinvite">6 INVITES</div><div class="pname">PRO FREE</div><div class="pprice">FREE</div><p class="pdesc">Best free plan for modded servers & active communities.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>6 GB RAM</li><li class="on"><span class="ck">▸</span>100% CPU</li><li class="on"><span class="ck">▸</span>10 GB Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>Standard DDoS Shield</li><li class="on"><span class="ck">▸</span>Custom Subdomain</li></ul><button onclick="openO('free-o')" class="pbtn solid">GET STARTED</button></div>
+        <div class="pcard fu fd3"><div class="free-tag">FREE</div><div class="picon">🏆</div><div class="pinvite">9 INVITES</div><div class="pname">ADVANCED</div><div class="pprice">FREE</div><p class="pdesc">More players, more power. For serious server owners.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>9 GB RAM</li><li class="on"><span class="ck">▸</span>200% CPU</li><li class="on"><span class="ck">▸</span>20 GB Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>Advanced DDoS Shield</li><li class="on"><span class="ck">▸</span>Custom Subdomain</li></ul><button onclick="openO('free-o')" class="pbtn outline">GET STARTED</button></div>
+        <div class="pcard fu fd4"><div class="free-tag">FREE</div><div class="picon">💎</div><div class="pinvite">14 INVITES</div><div class="pname">ELITE</div><div class="pprice">FREE</div><p class="pdesc">Top-tier free hosting. Better than most paid alternatives.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>14 GB RAM</li><li class="on"><span class="ck">▸</span>250% CPU</li><li class="on"><span class="ck">▸</span>25 GB Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>Advanced DDoS Shield</li><li class="on"><span class="ck">▸</span>Priority Support</li></ul><button onclick="openO('free-o')" class="pbtn outline">GET STARTED</button></div>
+        <div class="pcard fu fd5"><div class="free-tag">FREE</div><div class="picon">👑</div><div class="pinvite">18 INVITES</div><div class="pname">LEGEND</div><div class="pprice">FREE</div><p class="pdesc">Massive power for large networks and heavy modpacks.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>18 GB RAM</li><li class="on"><span class="ck">▸</span>300% CPU</li><li class="on"><span class="ck">▸</span>35 GB Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>Enterprise DDoS</li><li class="on"><span class="ck">▸</span>Priority Support</li></ul><button onclick="openO('free-o')" class="pbtn outline">GET STARTED</button></div>
+        <div class="pcard top fu"><div class="pbadge pink">100 INVITES</div><div class="free-tag">FREE</div><div class="picon">♾️</div><div class="pinvite">ELITE ACCESS</div><div class="pname">UNLIMITED</div><div class="pprice">FREE</div><p class="pdesc">Invite 100 friends. Unlimited everything. Forever.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>∞ RAM</li><li class="on"><span class="ck">▸</span>∞ CPU</li><li class="on"><span class="ck">▸</span>∞ Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>Max DDoS Shield</li><li class="on"><span class="ck">▸</span>VIP Support</li></ul><button onclick="openO('free-o')" class="pbtn top-btn">UNLOCK NOW</button></div>
+      </div>
+    </div>
+
+    <div class="plan-content" id="tab-paid">
+      <div style="text-align:center;margin-bottom:28px"><span style="font-family:var(--fm);font-size:12px;color:var(--t2)">Create a Discord ticket to purchase. Fast setup | Smooth performance | Best prices</span></div>
+      <div class="plans-grid">
+        <div class="pcard fu"><div class="picon">⚡</div><div class="pname">BASIC</div><div class="pprice rupee"><sup>₹</sup>49<span>/month</span></div><p class="pdesc">Good for small servers. 2–5 players.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>1 GB RAM</li><li class="on"><span class="ck">▸</span>NVMe Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>DDoS Protection</li><li class="on"><span class="ck">▸</span>2–5 Players</li><li><span class="xk">✗</span>Priority Support</li></ul><button onclick="openO('paid-o')" class="pbtn ticket">CREATE TICKET</button></div>
+        <div class="pcard fu fd1"><div class="picon">🚀</div><div class="pname">STANDARD</div><div class="pprice rupee"><sup>₹</sup>89<span>/month</span></div><p class="pdesc">Smooth gameplay for 5–10 players.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>2 GB RAM</li><li class="on"><span class="ck">▸</span>NVMe Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>DDoS Protection</li><li class="on"><span class="ck">▸</span>5–10 Players</li><li class="on"><span class="ck">▸</span>Basic Support</li></ul><button onclick="openO('paid-o')" class="pbtn ticket">CREATE TICKET</button></div>
+        <div class="pcard hot fu fd2"><div class="pbadge purple">BEST VALUE</div><div class="picon">💜</div><div class="pname">PRO</div><div class="pprice rupee"><sup>₹</sup>129<span>/month</span></div><p class="pdesc">Better performance for 10–15 players.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>3 GB RAM</li><li class="on"><span class="ck">▸</span>NVMe Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>DDoS Protection</li><li class="on"><span class="ck">▸</span>10–15 Players</li><li class="on"><span class="ck">▸</span>Priority Support</li></ul><button onclick="openO('paid-o')" class="pbtn solid">CREATE TICKET</button></div>
+        <div class="pcard fu fd3"><div class="picon">🔥</div><div class="pname">ADVANCED</div><div class="pprice rupee"><sup>₹</sup>169<span>/month</span></div><p class="pdesc">Lag-free experience for 15+ players.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>4 GB RAM</li><li class="on"><span class="ck">▸</span>NVMe Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>DDoS Protection</li><li class="on"><span class="ck">▸</span>15+ Players</li><li class="on"><span class="ck">▸</span>Priority Support</li></ul><button onclick="openO('paid-o')" class="pbtn ticket">CREATE TICKET</button></div>
+        <div class="pcard fu fd4"><div class="picon">👑</div><div class="pname">ELITE</div><div class="pprice rupee"><sup>₹</sup>249<span>/month</span></div><p class="pdesc">High performance for 20+ players.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>6 GB RAM</li><li class="on"><span class="ck">▸</span>NVMe Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>Advanced DDoS</li><li class="on"><span class="ck">▸</span>20+ Players</li><li class="on"><span class="ck">▸</span>Priority Support</li></ul><button onclick="openO('paid-o')" class="pbtn ticket">CREATE TICKET</button></div>
+        <div class="pcard fu fd5"><div class="picon">⚡</div><div class="pname">EXTREME</div><div class="pprice rupee"><sup>₹</sup>349<span>/month</span></div><p class="pdesc">Best for heavy servers & lots of plugins.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>8 GB RAM</li><li class="on"><span class="ck">▸</span>NVMe Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>Enterprise DDoS</li><li class="on"><span class="ck">▸</span>Heavy Plugins</li><li class="on"><span class="ck">▸</span>24/7 Support</li></ul><button onclick="openO('paid-o')" class="pbtn ticket">CREATE TICKET</button></div>
+        <div class="pcard top fu"><div class="pbadge pink">MAX POWER</div><div class="picon">💎</div><div class="pname">ULTIMATE</div><div class="pprice rupee"><sup>₹</sup>599<span>/month</span></div><p class="pdesc">Maximum performance. Big SMP / Heavy Mods.</p><ul class="pfeats"><li class="on"><span class="ck">▸</span>16 GB RAM</li><li class="on"><span class="ck">▸</span>NVMe Storage</li><li class="on"><span class="ck">▸</span>Pterodactyl Panel</li><li class="on"><span class="ck">▸</span>Enterprise DDoS</li><li class="on"><span class="ck">▸</span>Big SMP / Mods</li><li class="on"><span class="ck">▸</span>VIP 24/7 Support</li></ul><button onclick="openO('paid-o')" class="pbtn top-btn">CREATE TICKET</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="why">
+  <div class="wrap">
+    <div class="sec-tag">🏆 WHY DARK HOSTING</div>
+    <h2 class="sec-title">BUILT FOR <span class="hl">PERFORMANCE</span></h2>
+    <p class="sec-sub">We obsess over every millisecond so your players never experience lag.</p>
+    <div class="feat-grid">
+      <div class="fcard fu"><div class="ficon fi-p">⚡</div><div class="fname">Ultra Low Latency</div><p class="fdesc">AMD EPYC processors with NVMe SSDs. Lightning-fast India nodes for minimum ping.</p><div class="fstat">&lt;5ms</div></div>
+      <div class="fcard fu fd1"><div class="ficon fi-p">🛡</div><div class="fname">DDoS Protection</div><p class="fdesc">Enterprise-grade DDoS mitigation on all plans. Always-on, always protected.</p><div class="fstat">1 Tbps</div></div>
+      <div class="fcard fu fd2"><div class="ficon fi-g">🎛</div><div class="fname">Pterodactyl Panel</div><p class="fdesc">One-click installs for all Minecraft versions, mods, and plugins.</p><div class="fstat" style="background:linear-gradient(90deg,var(--green),#059669);-webkit-background-clip:text;-webkit-text-fill-color:transparent">1-CLICK</div></div>
+      <div class="fcard fu fd3"><div class="ficon fi-a">💬</div><div class="fname">24/7 Support</div><p class="fdesc">Real humans on Discord. Average response under 10 minutes, any time.</p><div class="fstat" style="background:linear-gradient(90deg,var(--amber),#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent">&lt;10min</div></div>
+      <div class="fcard fu fd4"><div class="ficon fi-p">📊</div><div class="fname">99.9% Uptime</div><p class="fdesc">Redundant infrastructure ensures your server stays online around the clock.</p><div class="fstat">99.9%</div></div>
+      <div class="fcard fu fd5"><div class="ficon fi-g">🚀</div><div class="fname">Instant Setup</div><p class="fdesc">Server deployed in under 60 seconds after purchase. Start playing immediately.</p><div class="fstat" style="background:linear-gradient(90deg,var(--green),#059669);-webkit-background-clip:text;-webkit-text-fill-color:transparent">60 SEC</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section id="reviews">
+  <div class="wrap">
+    <div class="sec-tag">⭐ REVIEWS</div>
+    <h2 class="sec-title">LOVED BY <span class="hl">PLAYERS</span></h2>
+    <div class="rev-grid">
+      <div class="rcard fu"><div class="rstars">★★★★★</div><p class="rtext">"Dark Hosting is insane value. ₹129/month for 3GB RAM and zero lag? Unbeatable in India."</p><div class="rauthor"><div class="ravatar">⛏️</div><div><div class="rname">CraftKing_IN</div><div class="rrole">PRO PLAN · 12 PLAYERS</div></div></div></div>
+      <div class="rcard fu fd1"><div class="rstars">★★★★★</div><p class="rtext">"Free plan with 6GB RAM is actually crazy. I was paying elsewhere for less. No brainer switch."</p><div class="rauthor"><div class="ravatar">🌿</div><div><div class="rname">FreeServerBoy</div><div class="rrole">6 INVITE FREE PLAN</div></div></div></div>
+      <div class="rcard fu fd2"><div class="rstars">★★★★★</div><p class="rtext">"DDoS hit us during peak hours. Server never went down. Support replied in 3 minutes. 10/10."</p><div class="rauthor"><div class="ravatar">🏰</div><div><div class="rname">BigSMP_Boss</div><div class="rrole">ULTIMATE PLAN · 50+ PLAYERS</div></div></div></div>
+      <div class="rcard fu fd3"><div class="rstars">★★★★★</div><p class="rtext">"Setup was done in literally 1 minute after creating the ticket. Team is super fast."</p><div class="rauthor"><div class="ravatar">🔥</div><div><div class="rname">SpeedRun_MC</div><div class="rrole">STANDARD PLAN</div></div></div></div>
+      <div class="rcard fu fd4"><div class="rstars">★★★★★</div><p class="rtext">"Best hosting in India. Invited 9 friends, got 9GB RAM for free. My SMP runs perfectly."</p><div class="rauthor"><div class="ravatar">👑</div><div><div class="rname">InviteGrinder</div><div class="rrole">9 INVITE FREE PLAN</div></div></div></div>
+      <div class="rcard fu fd5"><div class="rstars">★★★★★</div><p class="rtext">"Running a modpack on Extreme plan. Zero lag, great uptime, and ₹349 is genuinely cheap."</p><div class="rauthor"><div class="ravatar">🔧</div><div><div class="rname">ModpackDev</div><div class="rrole">EXTREME PLAN · HEAVY MODS</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DISCORD -->
+<section id="contact">
+  <div class="wrap" style="text-align:center">
+    <div class="sec-tag">💬 GET IN TOUCH</div>
+    <h2 class="sec-title" style="margin-bottom:50px">JOIN OUR <span class="hl">DISCORD</span></h2>
+    <div class="disc-card fu">
+      <div style="font-size:52px">🎮</div>
+      <h3>CREATE A TICKET</h3>
+      <p>Join our Discord to purchase a plan, get support, or ask anything. Our team responds within minutes — 24/7.</p>
+      <a href="https://discord.gg/J7RGqWSU46" target="_blank" class="btn-disc">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        JOIN DISCORD
+      </a>
+      <div style="margin-top:14px;font-family:var(--fm);font-size:11px;color:var(--t3)">discord.gg/J7RGqWSU46</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="fbrand">
+      <a class="logo" href="#" style="font-size:16px"><div class="logo-mark" style="width:30px;height:30px;font-size:14px">⛏</div>DARK<span>HOSTING</span></a>
+      <p>Premium Minecraft hosting in India. Ultra-low latency, DDoS protection, instant setup. Best prices guaranteed.</p>
+    </div>
+    <div class="fcol"><h4>HOSTING</h4><a href="#plans">Free Plans</a><a href="#plans">Paid Plans</a><a href="#contact">Get Started</a></div>
+    <div class="fcol"><h4>COMPANY</h4><a href="#">About Us</a><a href="#">Status Page</a><a href="#">Affiliates</a></div>
+    <div class="fcol"><h4>SUPPORT</h4><a href="https://discord.gg/J7RGqWSU46" target="_blank">Discord</a><a href="https://discord.gg/J7RGqWSU46" target="_blank">Create Ticket</a><a href="#">FAQ</a><a href="#">Terms</a></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Dark Hosting — All rights reserved.</span>
+    <span class="fsys">🟢 ALL SYSTEMS OPERATIONAL</span>
+  </div>
+</footer>
+
+<!-- ══ AUTH MODAL ═══════════════════════════════════════════════════════════ -->
+<div class="overlay" id="auth-o" onclick="backdropClose(event,'auth-o')">
+  <div class="mcard">
+    <button class="mclose" onclick="closeO('auth-o')">✕</button>
+
+    <!-- LOGIN -->
+    <div class="mview" id="v-login">
+      <div class="micon">🔐</div>
+      <div class="mtitle">Welcome Back</div>
+      <p class="msub">Sign in to your Dark Hosting account</p>
+      <div class="alert hide" id="li-alert"></div>
+      <div class="fg"><label>Email</label><input type="email" id="li-email" placeholder="you@example.com"></div>
+      <div class="fg"><label>Password</label><div class="pw-wrap"><input type="password" id="li-pass" placeholder="••••••••"><button class="pw-eye" onclick="togglePw('li-pass',this)" tabindex="-1">👁</button></div></div>
+      <div style="text-align:right;margin:-8px 0 14px"><a style="font-size:12px;color:var(--t2);cursor:pointer;font-family:var(--fm);transition:color .2s" onmouseover="this.style.color='var(--violet)'" onmouseout="this.style.color='var(--t2)'" onclick="showV('v-forgot')">Forgot password?</a></div>
+      <button class="mbtn" id="li-btn" onclick="doLogin()">SIGN IN</button>
+      <div class="mlinks">Don't have an account? <a onclick="showV('v-register')">Create Account</a></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="mview" id="v-register">
+      <div class="micon">🌱</div>
+      <div class="mtitle">Create Account</div>
+      <p class="msub">Join Dark Hosting — free to start!</p>
+      <div class="alert hide" id="rg-alert"></div>
+      <div class="fg"><label>Email</label><input type="email" id="rg-email" placeholder="you@example.com"></div>
+      <div class="fg"><label>Password</label><div class="pw-wrap"><input type="password" id="rg-pass" placeholder="Min. 6 characters" oninput="calcStrength(this.value)"><button class="pw-eye" onclick="togglePw('rg-pass',this)" tabindex="-1">👁</button></div><div class="sbar"><div class="sbar-fill" id="sf"></div></div><div class="sbar-lbl" id="sl"></div></div>
+      <div class="fg"><label>Confirm Password</label><div class="pw-wrap"><input type="password" id="rg-pass2" placeholder="••••••••"><button class="pw-eye" onclick="togglePw('rg-pass2',this)" tabindex="-1">👁</button></div></div>
+      <button class="mbtn" id="rg-btn" onclick="doRegister()">CREATE ACCOUNT</button>
+      <div class="mlinks">Already have an account? <a onclick="showV('v-login')">Login Here</a></div>
+    </div>
+
+    <!-- FORGOT -->
+    <div class="mview" id="v-forgot">
+      <div class="micon">🔑</div>
+      <div class="mtitle">Forgot Password</div>
+      <p class="msub">Enter your email — we'll show you your reset options.</p>
+      <div class="alert hide" id="fp-alert"></div>
+      <div class="fg"><label>Email Address</label><input type="email" id="fp-email" placeholder="you@example.com"></div>
+      <button class="mbtn" id="fp-btn" onclick="doForgot()">RESET PASSWORD</button>
+      <div class="mlinks"><a onclick="showV('v-login')">← Back to Sign In</a></div>
+    </div>
+
+    <!-- FORGOT SUCCESS (show new pass form since no email) -->
+    <div class="mview" id="v-forgot-ok">
+      <div class="micon">🔑</div>
+      <div class="mtitle">Set New Password</div>
+      <p class="msub">Account found! Set your new password below.</p>
+      <div class="alert hide" id="np-alert"></div>
+      <div class="fg"><label>New Password</label><div class="pw-wrap"><input type="password" id="np-pass" placeholder="Min. 6 characters" oninput="calcStrength(this.value,'r')"><button class="pw-eye" onclick="togglePw('np-pass',this)" tabindex="-1">👁</button></div><div class="sbar"><div class="sbar-fill" id="sf-r"></div></div><div class="sbar-lbl" id="sl-r"></div></div>
+      <div class="fg"><label>Confirm Password</label><div class="pw-wrap"><input type="password" id="np-pass2" placeholder="••••••••"><button class="pw-eye" onclick="togglePw('np-pass2',this)" tabindex="-1">👁</button></div></div>
+      <button class="mbtn" id="np-btn" onclick="doNewPass()">SET PASSWORD</button>
+    </div>
+
+    <!-- REGISTER SUCCESS -->
+    <div class="mview" id="v-reg-ok">
+      <div class="micon green">🎉</div>
+      <div class="mtitle">Account Created!</div>
+      <p class="msub">Welcome! Here's how to get your server:</p>
+      <ul style="list-style:none;margin:0 0 20px">
+        <li style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--t2)"><div style="width:22px;height:22px;background:linear-gradient(135deg,var(--p),var(--p2));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">1</div><div>Join our Discord and create a ticket to choose your plan.</div></li>
+        <li style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--t2)"><div style="width:22px;height:22px;background:linear-gradient(135deg,var(--p),var(--p2));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">2</div><div>Sign in to <strong style="color:var(--violet)">panel.jtgggg.qzz.io</strong></div></li>
+        <li style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:13px;color:var(--t2)"><div style="width:22px;height:22px;background:linear-gradient(135deg,var(--p),var(--p2));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">3</div><div>Send us your email in the ticket — server set up in minutes!</div></li>
+      </ul>
+      <a href="https://panel.jtgggg.qzz.io/" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--p-dim);border:1px solid var(--border2);border-radius:12px;text-decoration:none;margin-bottom:12px"><div><div style="font-size:13px;font-weight:700;color:var(--t1)">Hosting Panel</div><div style="font-size:11px;color:var(--t2)">Go here to access your server</div></div><span style="font-size:13px;font-weight:700;color:var(--violet)">Open →</span></a>
+      <a href="https://discord.gg/J7RGqWSU46" target="_blank" style="display:block;width:100%;padding:12px;background:#5865f2;color:#fff;border-radius:12px;font-size:14px;font-weight:700;text-align:center;text-decoration:none">🎮 Join Discord & Create Ticket</a>
+    </div>
+
+    <!-- RESET SUCCESS -->
+    <div class="mview" id="v-reset-ok">
+      <div class="micon green">✅</div>
+      <div class="mtitle">Password Changed!</div>
+      <p class="msub">Your password has been updated successfully.</p>
+      <div class="alert suc"><span>✓</span>&nbsp; You can now sign in with your new password.</div>
+      <button class="mbtn" style="margin-top:16px" onclick="showV('v-login')">SIGN IN NOW</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAID MODAL ══════════════════════════════════════════════════════════ -->
+<div class="overlay" id="paid-o" onclick="backdropClose(event,'paid-o')">
+  <div class="mcard wide">
+    <button class="mclose" onclick="closeO('paid-o')">✕</button>
+    <div class="micon">💳</div>
+    <div class="mtitle">How to Purchase</div>
+    <p class="msub">Follow these steps after choosing your plan.</p>
+    <div class="pstep"><div class="pstep-n">1</div><div><div class="pstep-t">Join Discord & Create a Ticket</div><div class="pstep-d">Tell us your plan and complete payment in the ticket.</div><a href="https://discord.gg/J7RGqWSU46" target="_blank" class="slink sl-d">🎮 discord.gg/J7RGqWSU46</a></div></div>
+    <div class="pstep"><div class="pstep-n">2</div><div><div class="pstep-t">Sign Up on the Hosting Panel</div><div class="pstep-d">Create a free account using your email address.</div><a href="https://panel.jtgggg.qzz.io/" target="_blank" class="slink sl-p">🖥 panel.jtgggg.qzz.io</a></div></div>
+    <div class="pstep" style="margin-bottom:24px"><div class="pstep-n">3</div><div><div class="pstep-t">Send Us Your Email in the Ticket</div><div class="pstep-d">Share your panel email — server deployed in minutes!</div></div></div>
+    <a href="https://discord.gg/J7RGqWSU46" target="_blank" class="mbtn" style="display:block;text-align:center;text-decoration:none">🎮 OPEN DISCORD TICKET NOW</a>
+  </div>
+</div>
+
+<!-- ══ FREE MODAL ══════════════════════════════════════════════════════════ -->
+<div class="overlay" id="free-o" onclick="backdropClose(event,'free-o')">
+  <div class="mcard wide">
+    <button class="mclose" onclick="closeO('free-o')">✕</button>
+    <div class="micon green">🌱</div>
+    <div class="mtitle">Free Plan</div>
+    <div style="text-align:center;margin-bottom:20px"><span style="background:var(--green-dim);border:1px solid rgba(16,185,129,.25);color:var(--green);font-family:var(--fm);font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;letter-spacing:.1em">✓ NO PAYMENT REQUIRED</span></div>
+    <p class="msub" style="margin-bottom:22px">Free plans need no payment! Invite friends on Discord, sign up on panel, send us your email.</p>
+    <div class="pstep"><div class="pstep-n g">1</div><div><div class="pstep-t">Join Discord & Invite Friends</div><div class="pstep-d">Join and invite the required number of friends. No payment needed!</div><a href="https://discord.gg/J7RGqWSU46" target="_blank" class="slink sl-d">🎮 discord.gg/J7RGqWSU46</a></div></div>
+    <div class="pstep"><div class="pstep-n g">2</div><div><div class="pstep-t">Sign Up on the Hosting Panel</div><div class="pstep-d">Create your free account with your email address.</div><a href="https://panel.jtgggg.qzz.io/" target="_blank" class="slink sl-p">🖥 panel.jtgggg.qzz.io</a></div></div>
+    <div class="pstep" style="margin-bottom:24px"><div class="pstep-n g">3</div><div><div class="pstep-t">Create a Ticket & Send Your Email</div><div class="pstep-d">Tell us which free plan you want + your panel email. We set it up for free!</div></div></div>
+    <a href="https://discord.gg/J7RGqWSU46" target="_blank" class="mbtn" style="display:block;text-align:center;text-decoration:none;background:linear-gradient(135deg,var(--green),#059669);box-shadow:0 0 20px rgba(16,185,129,.3)">🎮 JOIN DISCORD — IT'S FREE!</a>
+  </div>
+</div>
+
+<!-- ══ ADMIN PANEL ══════════════════════════════════════════════════════════ -->
+<div class="admin-overlay" id="admin-panel">
+  <div class="admin-wrap">
+    <div class="admin-topbar">
+      <div class="admin-title">⚙ DARK HOSTING — ADMIN</div>
+      <div style="flex:1"></div>
+      <div style="font-family:var(--fm);font-size:11px;color:var(--t2)" id="admin-as"></div>
+      <button onclick="closeAdmin()" style="padding:8px 18px;background:var(--red-dim);border:1px solid rgba(239,68,68,.25);color:#fca5a5;border-radius:8px;cursor:pointer;font-family:var(--fb);font-size:13px;font-weight:700">✕ Close</button>
+    </div>
+    <div class="astat-grid">
+      <div class="astat"><div class="astat-lbl">TOTAL REVENUE</div><div class="astat-val" id="a-rev">₹0</div></div>
+      <div class="astat"><div class="astat-lbl">ACTIVE BUYERS</div><div class="astat-val" id="a-buyers">0</div></div>
+      <div class="astat"><div class="astat-lbl">PENDING ORDERS</div><div class="astat-val" style="-webkit-text-fill-color:var(--amber);color:var(--amber)" id="a-pending">0</div></div>
+      <div class="astat"><div class="astat-lbl">FREE USERS</div><div class="astat-val" id="a-free">0</div></div>
+    </div>
+
+    <!-- Orders -->
+    <div class="acard">
+      <div class="acard-head">
+        <span class="acard-title">ORDERS</span>
+        <button class="abtn" onclick="openAddOrder()">+ Add Order</button>
+      </div>
+      <div id="a-orders"><div style="padding:28px;text-align:center;color:var(--t3);font-family:var(--fm);font-size:12px">No orders yet. Add manually when customers buy via Discord.</div></div>
+    </div>
+
+    <!-- Free Users -->
+    <div class="acard">
+      <div class="acard-head">
+        <span class="acard-title">FREE USERS</span>
+        <button class="abtn green" onclick="openAddFree()">+ Add User</button>
+      </div>
+      <div id="a-free-list"><div style="padding:28px;text-align:center;color:var(--t3);font-family:var(--fm);font-size:12px">No free users yet.</div></div>
+    </div>
+
+    <!-- Add Order form (inline) -->
+    <div id="add-order-form" style="display:none">
+      <div class="acard">
+        <div class="acard-head"><span class="acard-title">ADD ORDER</span><button onclick="document.getElementById('add-order-form').style.display='none'" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:18px">✕</button></div>
+        <div style="padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div><label style="font-family:var(--fm);font-size:10px;color:var(--t2);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px">Name</label><input class="ainput" id="ao-name" placeholder="Username" style="margin:0"></div>
+          <div><label style="font-family:var(--fm);font-size:10px;color:var(--t2);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px">Email</label><input class="ainput" id="ao-email" type="email" placeholder="email@example.com" style="margin:0"></div>
+          <div><label style="font-family:var(--fm);font-size:10px;color:var(--t2);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px">Plan</label><select class="ainput" id="ao-plan" style="margin:0"><option>Basic ₹49</option><option>Standard ₹89</option><option>Pro ₹129</option><option>Advanced ₹169</option><option>Elite ₹249</option><option>Extreme ₹349</option><option>Ultimate ₹599</option></select></div>
+          <div><label style="font-family:var(--fm);font-size:10px;color:var(--t2);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px">Status</label><select class="ainput" id="ao-status" style="margin:0"><option value="pending">Pending</option><option value="active">Active</option></select></div>
+          <div style="grid-column:1/-1"><button class="abtn" onclick="addOrder()" style="width:100%;padding:11px;font-size:14px">Add Order</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Free User form (inline) -->
+    <div id="add-free-form" style="display:none">
+      <div class="acard">
+        <div class="acard-head"><span class="acard-title">ADD FREE USER</span><button onclick="document.getElementById('add-free-form').style.display='none'" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:18px">✕</button></div>
+        <div style="padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div><label style="font-family:var(--fm);font-size:10px;color:var(--t2);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px">Username</label><input class="ainput" id="af-name" placeholder="Username" style="margin:0"></div>
+          <div><label style="font-family:var(--fm);font-size:10px;color:var(--t2);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px">Email</label><input class="ainput" id="af-email" type="email" placeholder="email@example.com" style="margin:0"></div>
+          <div><label style="font-family:var(--fm);font-size:10px;color:var(--t2);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px">Invites</label><input class="ainput" id="af-invites" type="number" placeholder="e.g. 6" style="margin:0"></div>
+          <div><label style="font-family:var(--fm);font-size:10px;color:var(--t2);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px">Plan</label><select class="ainput" id="af-plan" style="margin:0"><option>2 INV — 2GB</option><option>4 INV — 4GB</option><option>6 INV — 6GB</option><option>9 INV — 9GB</option><option>14 INV — 14GB</option><option>18 INV — 18GB</option><option>100 INV — UNLIMITED</option></select></div>
+          <div style="grid-column:1/-1"><button class="abtn green" onclick="addFreeUser()" style="width:100%;padding:11px;font-size:14px">Add User</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  ⚙  ADMIN CONFIG — CHANGE THESE
+// ══════════════════════════════════════════════════════════
+const ADMIN_CONFIG = {
+  email:    'admin@gmail.com',   // <-- apna admin email
+  password: 'admin'              // <-- apna admin password
+};
+// ══════════════════════════════════════════════════════════
+
+// ── STORAGE (localStorage so data persists after refresh) ────────────────
+const LS = {
+  get: k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+  del: k => localStorage.removeItem(k),
+};
+
+// ── AUTH STATE ────────────────────────────────────────────────────────────
+let DB = {
+  users: LS.get('dh_users') || [],
+  session: LS.get('dh_session') || null,
+  orders: LS.get('dh_orders') || [],
+  freeUsers: LS.get('dh_free') || [],
+};
+function saveDB() {
+  LS.set('dh_users',   DB.users);
+  LS.set('dh_session', DB.session);
+  LS.set('dh_orders',  DB.orders);
+  LS.set('dh_free',    DB.freeUsers);
+}
+
+// Add admin user to DB on load if not exists
+(function initAdmin() {
+  const exists = DB.users.find(u => u.email === ADMIN_CONFIG.email.toLowerCase());
+  if (!exists) {
+    DB.users.push({ email: ADMIN_CONFIG.email.toLowerCase(), password: ADMIN_CONFIG.password, createdAt: new Date().toISOString() });
+    saveDB();
+  }
+  // Restore session
+  if (DB.session) setLoggedIn(DB.session.email);
+})();
+
+function setLoggedIn(email) {
+  DB.session = { email };
+  saveDB();
+  document.getElementById('nav-auth').style.display  = 'none';
+  document.getElementById('nav-user').style.display  = 'flex';
+  document.getElementById('nav-email').textContent   = email;
+  const isAdmin = email.toLowerCase() === ADMIN_CONFIG.email.toLowerCase();
+  document.getElementById('btn-admin').style.display = isAdmin ? 'inline-flex' : 'none';
+  document.getElementById('admin-as').textContent    = 'Logged in as: ' + email;
+}
+function setLoggedOut() {
+  DB.session = null;
+  saveDB();
+  document.getElementById('nav-auth').style.display = 'flex';
+  document.getElementById('nav-user').style.display = 'none';
+  document.getElementById('btn-admin').style.display = 'none';
+}
+function doLogout() { setLoggedOut(); toast('Logged out','g'); }
+
+// ── MODAL HELPERS ─────────────────────────────────────────────────────────
+function openO(id, view) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if (view) showV(view);
+  else if (id === 'auth-o') showV('v-login');
+}
+function closeO(id) {
+  document.getElementById(id).classList.remove('open');
+  if (!document.querySelector('.overlay.open')) document.body.style.overflow = '';
+}
+function backdropClose(e, id) { if (e.target.id === id) closeO(id); }
+function showV(id) {
+  document.querySelectorAll('#auth-o .mview').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.alert').forEach(a => a.classList.add('hide'));
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open'));
+  document.body.style.overflow = '';
+});
+
+// ── FORM HELPERS ──────────────────────────────────────────────────────────
+function togglePw(id, btn) {
+  const i = document.getElementById(id);
+  i.type = i.type === 'password' ? 'text' : 'password';
+  btn.textContent = i.type === 'password' ? '👁' : '🙈';
+}
+function setAlert(id, type, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (!msg) { el.classList.add('hide'); return; }
+  el.className = 'alert ' + type;
+  el.innerHTML = (type === 'err' ? '✗' : '✓') + '&nbsp; ' + msg;
+}
+function setLoad(id, on) {
+  const b = document.getElementById(id);
+  if (!b) return;
+  b.disabled = on; b.style.opacity = on ? '.6' : '1';
+}
+function calcStrength(val, sfx = '') {
+  let s = 0;
+  if (val.length >= 6) s++; if (val.length >= 10) s++;
+  if (/[A-Z]/.test(val)) s++; if (/[0-9]/.test(val)) s++;
+  if (/[^A-Za-z0-9]/.test(val)) s++;
+  const lvl = [
+    {w:'0%',c:'transparent',t:''},
+    {w:'25%',c:'#ef4444',t:'Weak'},
+    {w:'50%',c:'#f59e0b',t:'Fair'},
+    {w:'75%',c:'#3b82f6',t:'Good'},
+    {w:'100%',c:'#10b981',t:'Strong'},
+  ];
+  const l = lvl[Math.min(s, 4)];
+  const fill = document.getElementById('sf' + (sfx ? '-' + sfx : ''));
+  const lbl  = document.getElementById('sl' + (sfx ? '-' + sfx : ''));
+  if (fill) { fill.style.width = l.w; fill.style.background = l.c; }
+  if (lbl)  { lbl.textContent = l.t; lbl.style.color = l.c; }
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────
+function doLogin() {
+  const email = document.getElementById('li-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('li-pass').value;
+  setAlert('li-alert', '', '');
+  if (!email || !pass) return setAlert('li-alert', 'err', 'Please enter email and password.');
+  const user = DB.users.find(u => u.email === email);
+  if (!user)           return setAlert('li-alert', 'err', 'No account found with this email.');
+  if (user.password !== pass) return setAlert('li-alert', 'err', 'Incorrect password.');
+  setLoggedIn(email);
+  closeO('auth-o');
+  toast('Signed in successfully ✓', 'g');
+}
+
+// ── REGISTER ──────────────────────────────────────────────────────────────
+function doRegister() {
+  const email = document.getElementById('rg-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('rg-pass').value;
+  const pass2 = document.getElementById('rg-pass2').value;
+  setAlert('rg-alert', '', '');
+  if (!email || !pass)  return setAlert('rg-alert', 'err', 'Please fill in all fields.');
+  if (pass !== pass2)   return setAlert('rg-alert', 'err', 'Passwords do not match.');
+  if (pass.length < 6)  return setAlert('rg-alert', 'err', 'Password must be at least 6 characters.');
+  if (DB.users.find(u => u.email === email)) return setAlert('rg-alert', 'err', 'An account with this email already exists.');
+  DB.users.push({ email, password: pass, createdAt: new Date().toISOString() });
+  saveDB();
+  setLoggedIn(email);
+  showV('v-reg-ok');
+}
+
+// ── FORGOT PASSWORD (no email — direct reset in browser) ──────────────────
+let forgotEmail = '';
+function doForgot() {
+  const email = document.getElementById('fp-email').value.trim().toLowerCase();
+  setAlert('fp-alert', '', '');
+  if (!email) return setAlert('fp-alert', 'err', 'Please enter your email address.');
+  const user = DB.users.find(u => u.email === email);
+  if (!user) return setAlert('fp-alert', 'err', 'No account found with this email.');
+  forgotEmail = email;
+  showV('v-forgot-ok');
+}
+function doNewPass() {
+  const pass  = document.getElementById('np-pass').value;
+  const pass2 = document.getElementById('np-pass2').value;
+  setAlert('np-alert', '', '');
+  if (!pass || !pass2)  return setAlert('np-alert', 'err', 'Please fill in both fields.');
+  if (pass !== pass2)   return setAlert('np-alert', 'err', 'Passwords do not match.');
+  if (pass.length < 6)  return setAlert('np-alert', 'err', 'Minimum 6 characters.');
+  const user = DB.users.find(u => u.email === forgotEmail);
+  if (!user) return setAlert('np-alert', 'err', 'Account not found.');
+  user.password = pass;
+  saveDB();
+  showV('v-reset-ok');
+}
+
+// ── PLAN TABS ─────────────────────────────────────────────────────────────
+function switchTab(tab, btn) {
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.plan-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('#tab-' + tab + ' .fu').forEach((el, i) => {
+    el.classList.remove('vis');
+    setTimeout(() => el.classList.add('vis'), 50 + i * 55);
+  });
+}
+
+// ── ADMIN PANEL ───────────────────────────────────────────────────────────
+function openAdmin() {
+  document.getElementById('admin-panel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderAdmin();
+}
+function closeAdmin() {
+  document.getElementById('admin-panel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+const ICONS = ['🎮','⚔️','🏰','🌙','🔥','⛏️','💎','👑','⚡','🌌','🦋','🐉'];
+const SC = s => s === 'active'
+  ? 'background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.2)'
+  : 'background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.2)';
+
+function renderAdmin() {
+  const active  = DB.orders.filter(o => o.status === 'active');
+  const pending = DB.orders.filter(o => o.status === 'pending');
+  const rev     = active.reduce((a, o) => a + o.price, 0);
+  document.getElementById('a-rev').textContent     = '₹' + rev.toLocaleString();
+  document.getElementById('a-buyers').textContent  = active.length;
+  document.getElementById('a-pending').textContent = pending.length;
+  document.getElementById('a-free').textContent    = DB.freeUsers.length;
+
+  const ol = document.getElementById('a-orders');
+  ol.innerHTML = DB.orders.length ? DB.orders.map(o => `
+    <div class="trow">
+      <div class="tavatar">${ICONS[o.id % ICONS.length]}</div>
+      <div class="tname">${o.name}<small>${o.email}</small></div>
+      <span class="tplan">${o.plan}</span>
+      <span class="tprice">₹${o.price}</span>
+      <span class="tstatus" style="${SC(o.status)}">${o.status.toUpperCase()}</span>
+      <div class="tact">
+        ${o.status === 'pending' ? `<button class="act-btn approve" onclick="approveOrder(${o.id})">Approve</button>` : ''}
+        <button class="act-btn del" onclick="deleteOrder(${o.id})">Delete</button>
+      </div>
+    </div>`).join('')
+    : '<div style="padding:26px;text-align:center;color:var(--t3);font-family:var(--fm);font-size:12px">No orders yet.</div>';
+
+  const fl = document.getElementById('a-free-list');
+  fl.innerHTML = DB.freeUsers.length ? DB.freeUsers.map(u => `
+    <div class="trow">
+      <div class="tavatar">🌱</div>
+      <div class="tname">${u.name}<small>${u.email}</small></div>
+      <span class="tplan">${u.plan}</span>
+      <span style="font-size:11px;color:var(--t2)">${u.invites} invites</span>
+      <span class="tstatus ts-free">FREE</span>
+      <div class="tact"><button class="act-btn del" onclick="deleteFree(${u.id})">Remove</button></div>
+    </div>`).join('')
+    : '<div style="padding:26px;text-align:center;color:var(--t3);font-family:var(--fm);font-size:12px">No free users yet.</div>';
+}
+
+function approveOrder(id) {
+  const o = DB.orders.find(x => x.id === id);
+  if (o) { o.status = 'active'; saveDB(); renderAdmin(); toast('Order approved ✓', 'g'); }
+}
+function deleteOrder(id) {
+  if (!confirm('Delete this order?')) return;
+  DB.orders = DB.orders.filter(x => x.id !== id);
+  saveDB(); renderAdmin(); toast('Order deleted', 'r');
+}
+function deleteFree(id) {
+  if (!confirm('Remove this user?')) return;
+  DB.freeUsers = DB.freeUsers.filter(x => x.id !== id);
+  saveDB(); renderAdmin(); toast('User removed', 'r');
+}
+
+function openAddOrder()  { document.getElementById('add-order-form').style.display = 'block'; document.getElementById('add-free-form').style.display = 'none'; }
+function openAddFree()   { document.getElementById('add-free-form').style.display = 'block'; document.getElementById('add-order-form').style.display = 'none'; }
+
+function addOrder() {
+  const name  = document.getElementById('ao-name').value.trim();
+  const email = document.getElementById('ao-email').value.trim();
+  const plan  = document.getElementById('ao-plan').value;
+  const stat  = document.getElementById('ao-status').value;
+  if (!name || !email) return toast('Fill name and email', 'r');
+  const pm = plan.match(/₹(\d+)/);
+  DB.orders.unshift({ id: Date.now(), name, email, plan, price: pm ? parseInt(pm[1]) : 0, status: stat, date: new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) });
+  saveDB(); renderAdmin();
+  document.getElementById('ao-name').value = ''; document.getElementById('ao-email').value = '';
+  document.getElementById('add-order-form').style.display = 'none';
+  toast('Order added ✓', 'g');
+}
+function addFreeUser() {
+  const name    = document.getElementById('af-name').value.trim();
+  const email   = document.getElementById('af-email').value.trim();
+  const invites = parseInt(document.getElementById('af-invites').value) || 0;
+  const plan    = document.getElementById('af-plan').value;
+  if (!name || !email) return toast('Fill name and email', 'r');
+  DB.freeUsers.unshift({ id: Date.now(), name, email, invites, plan, date: new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) });
+  saveDB(); renderAdmin();
+  document.getElementById('af-name').value = ''; document.getElementById('af-email').value = ''; document.getElementById('af-invites').value = '';
+  document.getElementById('add-free-form').style.display = 'none';
+  toast('Free user added ✓', 'g');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────
+let tt;
+function toast(msg, type = 'g') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'show ' + type;
+  clearTimeout(tt);
+  tt = setTimeout(() => el.className = '', 3000);
+}
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────────────────
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('.fu').forEach(el => obs.observe(el));
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const active = document.querySelector('#auth-o .mview.active');
+  if (!active) return;
+  if (active.id === 'v-login')     doLogin();
+  else if (active.id === 'v-register') doRegister();
+  else if (active.id === 'v-forgot')   doForgot();
+  else if (active.id === 'v-forgot-ok') doNewPass();
+});
+</script>
+</body>
+</html>
